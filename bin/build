@@ -2,7 +2,7 @@
 
 WIP=$(mktemp -d)
 cleanup() {
-    rm -rf ${WIP}
+echo    rm -rf ${WIP}
 }
 trap cleanup EXIT
 
@@ -16,3 +16,9 @@ rustup target add x86_64-unknown-linux-musl --toolchain=stable
 rustup run stable cargo build --manifest-path=wrapper/Cargo.toml --release --verbose --target-dir ${WIP}/rust --target x86_64-unknown-linux-musl
 
 cp ${WIP}/rust/x86_64-unknown-linux-musl/release/wrapper ${WIP}/wrapper-rs
+
+GOOS=linux CGO_ENABLED=0 GOBIN=${WIP} go install -ldflags '-s' "."
+
+zip -X -qyjr "${WIP}/out.zip" "${WIP}/wrapper-rs" "${WIP}/go-rust-lambda-wrapper"
+
+unzip -l "${WIP}/out.zip"
